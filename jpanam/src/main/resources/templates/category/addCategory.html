@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<head><title>카테고리 추가하기</title></head>
+<style>
+    .fieldError {
+        border-color: #bd2130;
+    }
+</style>
+<body>
+
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+
+    <h3>카테고리 추가하기</h3><p></p>
+
+    <form role="form" action="/category/add" th:object="${categoryForm}" method="post">
+        <div class="form-group">
+            <label th:for="categoryName">카테고리 제목</label>
+
+            <input type="text" th:field="*{categoryName}" class="form-control" placeholder="카테고리를 입력하세요"
+                   th:class="${#fields.hasErrors('categoryName')}? 'form-control fieldError' : 'form-control'">
+            <p th:if="${#fields.hasErrors('categoryName')}" th:errors="*{categoryName}">Incorrect data</p>
+
+        </div>
+        <button style="float:right;" type="submit" class="btn btn-warning">카테고리 추가</button>
+    </form>
+    <br/><br/><br/>
+    <div th:replace="fragments/footer :: footer" />
+</div> <!-- /container -->
+
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header"/>
+<head><title>회원가입</title></head>
+<style>
+    .fieldError {
+        border-color: #bd2130;
+    }
+</style>
+<body>
+
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+
+    <form role="form" action="/members/join" th:object="${memberForm}" method="post">
+        <div class="form-group">
+            <label th:for="email">이메일</label>
+
+            <input type="email" th:field="*{email}" class="form-control" placeholder="이메일을 입력하세요"
+                   th:class="${#fields.hasErrors('email')}? 'form-control fieldError' : 'form-control'">
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Incorrect data</p>
+
+        </div>
+        <div class="form-group">
+            <label th:for="nickName">닉네임</label>
+
+            <input type="text" th:field="*{nickName}" class="form-control" placeholder="닉네임을 입력하세요"
+                   th:class="${#fields.hasErrors('nickName')}? 'form-control fieldError' : 'form-control'">
+            <p th:if="${#fields.hasErrors('nickName')}" th:errors="*{nickName}">Incorrect data</p>
+
+        </div>
+        <div class="form-group">
+            <label th:for="password">패스워드</label>
+
+            <input type="password" th:field="*{password}" class="form-control" placeholder="패스워드을 입력하세요"
+                   th:class="${#fields.hasErrors('password')}? 'form-control fieldError' : 'form-control'">
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Incorrect data</p>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary">가입하기</button>
+    </form>
+    <br/>
+    <div th:replace="fragments/footer :: footer" />
+</div> <!-- /container -->
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<head>
+    <meta charset="UTF-8">
+    <title>할 일 리스트</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+    <div style="float: right;"><button onclick="location.href = '/todo/add'" type="button" class="btn btn-primary">할 일 추가하기</button></div><br><br><br>
+
+    <div class="input-group">
+        <select class="custom-select" id="inputGroupSelect04" aria-label="Example select with button addon" onchange="find_by_category();">
+            <option value="전체">전체보기</option>
+            <option value="0" th:selected="${cateNum} == 0">미지정카테고리</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.categoryNum}"
+                    th:selected="${category.categoryNum} == ${cateNum}"
+                    th:text="${category.categoryName}"/>
+
+        </select>
+        <input type="text" th:value="${searchText}" id="search_text" style="width:330px;" class="form-control" placeholder="검색어를 입력하세요"><button type="button" onclick="search_click();" style="margin-left:10px;" class="btn btn-success">검색</button>
+    </div>
+
+    <br>
+    <ul class="list-group" >
+        <li class="list-group-item" th:each="todo : ${todos}" onMouseOver="this.style.backgroundColor='#eeeeee'" th:onMouseOut= "this.style.backgroundColor=''" >
+            <div th:ondblclick="go_detail([[${todo.todoNum}]], [[${todo.todoState.toString()}]]);" >
+            <div>
+            <div style="display:inline-block;"><h4>할일 제목 : <span th:text="${todo.todoCon}"></span></h4></div>
+            <div style="display: inline-block; float: right; width: 15%;">
+                <button style=" z-index:99;" th:if="${todo.todoState.toString().equals('N')}" class="btn btn-primary" th:onclick="complete_todo([[${todo.todoNum}]]);">수행완료!</button>
+            </div>
+            </div>
+
+            <p>할일 마감기한 : <span th:text="${#temporals.format(todo.todoDate, 'yyyy/MM/dd HH:mm')}"></span></p>
+            <p th:if="${todo.category?.categoryName} != null">카테고리 : <span th:text="${todo.category?.categoryName}"></span></p>
+            <p th:if="${todo.category?.categoryName} == null">카테고리 : <span>없음</span></p>
+            <p style="display: inline-block;">마감 여부 : <span style="color:red" th:if="${todo.todoState.toString().equals('N')}">미완료</span><span style="color:green;" th:if="${todo.todoState.toString().equals('Y')}">완료</span></p>
+               <button th:onclick="delete_todo([[${todo.todoNum}]]);" th:if="${todo.todoState.toString().equals('Y')}" style=" float:right; z-index:99;" type="button" class="btn btn-outline-danger">삭제</button>
+            </div>
+
+        </li>
+
+    </ul>
+
+
+
+    <br>
+    <button style="border:1;" class="btn btn-primary" onclick="category_list();">카테고리 편집</button>
+    <button type="button" style="margin-bottom:50px;float:right;" class="btn btn-warning" onclick="complete_past_todo();">지난 할일 일괄 수행</button>
+    <input type="hidden" id="is_update" th:value="${isUpdate}"><br><br><br>
+    <div th:replace="fragments/footer :: footer" />
+</div>
+
+<script>
+
+    function search_click(){
+        var searchText = document.getElementById("search_text").value;
+        if(searchText.length<2){
+            alert('검색어를 2자이상 입력해주세요');
+            return ;
+        }
+        var selectOption = document.getElementById("inputGroupSelect04");
+        selectOption = selectOption.options[selectOption.selectedIndex].value;
+        if(selectOption == "전체"){
+            location.href = "/todo/list?searchText=" + searchText;
+        }else{
+            location.href = "/todo/list?cateNum=" + selectOption + "&searchText=" + searchText;
+        }
+    }
+
+    function category_list(){
+        location.href="/category/list";
+    }
+
+    function complete_past_todo(){
+        location.href="/todo/conductAll";
+    }
+
+    function complete_todo(todoNum){
+        var selectOption = document.getElementById("inputGroupSelect04");
+        selectOption = selectOption.options[selectOption.selectedIndex].value;
+        var searchText = document.getElementById("search_text").value;
+
+        if(selectOption == "전체"){
+            location.href = "/todo/conduct?todoNum=" + todoNum + "&searchText=" + searchText;
+        }else{
+            location.href = "/todo/conduct?todoNum=" + todoNum + "&cateNum=" + selectOption + "&searchText=" + searchText;
+        }
+
+    }
+
+    function delete_todo(todoNum){
+        var selectOption = document.getElementById("inputGroupSelect04");
+        selectOption = selectOption.options[selectOption.selectedIndex].value;
+        var searchText = document.getElementById("search_text").value;
+
+        if(selectOption == "전체"){
+            location.href = "/todo/delete?todoNum=" + todoNum + "&searchText=" + searchText;
+        }else{
+            location.href = "/todo/delete?todoNum=" + todoNum + "&cateNum=" + selectOption + "&searchText=" + searchText;
+        }
+
+
+    }
+
+    function go_detail(todoNum, todoState){
+        if(todoState == 'N'){
+        var winPopup = window.open("/todo/update?todoNum=" + todoNum, "수정", "width=500,height=500");
+        }else{
+        alert('수행 완료된 할일은 수정 할 수 없습니다.');
+        }
+
+    }
+
+    function find_by_category(){
+        var selectOption = document.getElementById("inputGroupSelect04");
+        selectOption = selectOption.options[selectOption.selectedIndex].value;
+        if(selectOption == "전체"){
+            location.href = "/todo/list";
+        }else{
+            location.href = "/todo/list?cateNum=" + selectOption;
+        }
+
+    }
+
+    $( document ).ready( function() {
+updateValue = document.getElementById("is_update").value;
+        if(updateValue == 'updateYes'){
+            window.close();
+            opener.parent.location.reload();
+        }
+
+
+
+} );
+
+</script>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
